@@ -1,38 +1,87 @@
-# Offline UPI Project
+# Offline UPI
 
-This Android application enables users to make offline transactions using UPI (Unified Payments Interface) without requiring an internet connection. The project is implemented in Java and provides a seamless payment experience for users even in scenarios where internet connectivity is limited or unavailable.
+An Android application that enables users to perform UPI (Unified Payments Interface) transactions without requiring an active internet connection. Ideal for areas with limited or no network coverage, this app leverages USSD-based UPI services to facilitate seamless offline payments.
 
 [![Latest release](https://img.shields.io/badge/Releases-v0.9-blue)](https://github.com/sahil-ingle/Offline-UPI/releases)
 
-## Note
-- Only work with SIM having GSM support
+
+---
 
 ## Features
 
-- **Offline UPI Transactions**: Users can initiate UPI transactions without an internet connection.
-- **QR Code Based Payments**: Supports QR code scanning for initiating transactions.
-- **Transaction History**: Keeps track of transaction history for reference.
-- **Security**: Implements secure encryption and authentication mechanisms for transactions.
-- **User-Friendly Interface**: Intuitive and easy-to-use interface for seamless payment experience.
+* **Offline UPI Transactions**: Initiate and complete UPI payments without internet connectivity.
+* **USSD Integration**: Utilizes the UPI 123Pay service (\*99#) for transaction processing.
+* **User-Friendly Interface**: Simple and intuitive design for easy navigation.
+* **Secure Transactions**: Ensures safe and encrypted payment processes.
 
-## How to Use
+---
 
-1. **Install the Application**: Download and install the APK from the [Releases](https://github.com/sahil-ingle/Offline-UPI/releases/tag/1.0-beta) section.
-2. **Open the Application**: Launch the application on your Android device.
-3. **Initiate Transaction**: Use the provided options to initiate a transaction.
-4. **Scan QR Code**: For QR code based payments, scan the QR code provided by the recipient.
-5. **View Transaction History**: Access the transaction history to view past transactions.
+## Prerequisites
 
-## Releases
+* **Android Device**: Requires a device running Android 5.0 (Lollipop) or higher.
+* **SIM Card**: Must be a GSM-supported SIM card for USSD functionality.
+* **Bank Compatibility**: Ensure your bank supports UPI 123Pay services.
 
-You can find the latest release of the application in the [Releases](https://github.com/sahil-ingle/Offline-UPI/releases/tag/1.0-beta) section of this repository. Download the APK file from there and follow the installation instructions.
+---
 
-## Contributions
+## Installation
 
-Contributions to improve the project are welcome! If you'd like to contribute, please follow these steps:
+1. **Clone the Repository**:
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/improvement`).
-3. Make your changes and commit them (`git commit -am 'Add feature/improvement'`).
-4. Push the changes to your branch (`git push origin feature/improvement`).
-5. Create a new Pull Request.
+   ```bash
+   git clone https://github.com/sahil-ingle/Offline-UPI.git
+   cd Offline-UPI
+   ```
+
+2. **Open in Android Studio**:
+
+   Launch Android Studio and open the cloned project directory.
+
+3. **Build the APK**:
+
+   In Android Studio, click on `Build > Build APK(s)` to generate the APK file.
+
+4. **Install the APK**:
+
+   Transfer the APK to your Android device and install it.
+
+---
+
+## Usage
+
+1. **Launch the App**:
+
+   Open the app on your Android device.
+
+2. **Initiate a Transaction**:
+
+   Enter the recipient's UPI ID, amount, and any additional details.
+
+3. **Confirm Payment**:
+
+   The app will process the transaction using the UPI 123Pay service via USSD.
+
+4. **Receive Confirmation**:
+
+   Upon successful payment, a confirmation message will be displayed.
+
+---
+
+## Limitations
+
+* **SIM Compatibility**: Only works with SIM cards that support GSM and USSD services.
+* **Bank Support**: Availability of UPI 123Pay services may vary by bank.
+* **Network Availability**: While the app operates offline, initial setup and certain features may require an internet connection.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+* [NPCI](https://www.npci.org.in/) for the UPI 123Pay service.
+* [Android Developers](https://developer.android.com/) for providing the tools and documentation to build Android applications.
