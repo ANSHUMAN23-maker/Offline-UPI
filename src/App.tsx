@@ -19,6 +19,7 @@ import { ContactsScreen } from './components/ContactsScreen';
 import { MenuScreen } from './components/MenuScreen';
 import { QRGenerateScreen } from './components/QRGenerateScreen';
 import { ScanQRScreen } from './components/ScanQRScreen';
+import { TransactionHistoryScreen } from './components/TransactionHistoryScreen';
 import { UssdModal } from './components/UssdModal';
 
 export const App: React.FC = () => {
@@ -258,6 +259,14 @@ export const App: React.FC = () => {
             currentLang={currentLang}
             onBack={() => setCurrentScreen('main')}
             onOpenUssdModal={openUssdModal}
+          />
+        );
+
+      case 'transaction_history':
+        return (
+          <TransactionHistoryScreen
+            currentLang={currentLang}
+            onBack={() => setCurrentScreen('main')}
           />
         );
 

@@ -3,8 +3,9 @@ import { LanguageCode, ScreenType, UserData } from '../types';
 import { LANGUAGES, TRANSLATIONS } from '../i18n/translations';
 import { storage } from '../utils/storage';
 import { executeUssdCall, simulateUssdResponse } from '../utils/ussd';
-import { ArrowLeft, User, Phone, AtSign, QrCode, Landmark, Globe, LogOut, KeyRound, Edit3, Fingerprint, Smartphone, Volume2 } from 'lucide-react';
+import { ArrowLeft, User, Phone, AtSign, QrCode, Landmark, Globe, LogOut, KeyRound, Edit3, Fingerprint, Smartphone, Volume2, Receipt, BookOpen } from 'lucide-react';
 import { triggerKeypadHaptic, triggerPaymentSuccessHaptic, haptics } from '../utils/haptics';
+import { UpiGuideModal } from './UpiGuideModal';
 
 interface MenuScreenProps {
   currentLang: LanguageCode;
@@ -32,6 +33,7 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState<boolean>(() => storage.isBiometricEnabled());
   const [hapticSoundEnabled, setHapticSoundEnabled] = useState<boolean>(() => haptics.isSoundEnabled());
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   const handleChangeBankAccount = () => {
     const dialCode = '*99*4*1#';
@@ -121,6 +123,50 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
               <span className="text-xs font-semibold text-slate-900">{t.your_qr_code}</span>
             </div>
             <span className="text-xs text-slate-400">→</span>
+          </button>
+
+          {/* Passbook & Transaction History */}
+          <button
+            onClick={() => {
+              triggerKeypadHaptic();
+              onNavigate('transaction_history');
+            }}
+            className="w-full p-3 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-between transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700">
+                <Receipt className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-semibold text-slate-900 block">
+                  Passbook &amp; History
+                </span>
+                <span className="text-[10px] text-slate-500">Live UTR receipts &amp; balance</span>
+              </div>
+            </div>
+            <span className="text-xs text-slate-400">&rarr;</span>
+          </button>
+
+          {/* Production UPI Implementation Guide */}
+          <button
+            onClick={() => {
+              triggerKeypadHaptic();
+              setShowGuideModal(true);
+            }}
+            className="w-full p-3 bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200/80 rounded-xl flex items-center justify-between transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                <BookOpen className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-bold text-emerald-950 block">
+                  Production UPI Setup Guide
+                </span>
+                <span className="text-[10px] text-emerald-800">TPAP, Razorpay, NPCI requirements</span>
+              </div>
+            </div>
+            <span className="text-xs text-emerald-700 font-bold">&rarr;</span>
           </button>
 
           {/* Change Bank Account */}
@@ -314,6 +360,11 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
           </div>
         </div>
       )}
+      {/* Production Guide Modal */}
+      <UpiGuideModal
+        isOpen={showGuideModal}
+        onClose={() => setShowGuideModal(false)}
+      />
     </div>
   );
 };

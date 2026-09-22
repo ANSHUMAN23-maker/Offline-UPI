@@ -1,4 +1,4 @@
-import { ContactItem, LanguageCode, SecurityQuestionsData, UserData } from '../types';
+import { ContactItem, LanguageCode, SecurityQuestionsData, UserData, TransactionItem } from '../types';
 
 const STORAGE_KEYS = {
   LANG: 'selected_language',
@@ -179,7 +179,19 @@ export const storage = {
     return updated;
   },
 
-  getTransactions(): Array<{ id: string; date: string; desc: string; amount: number; type: 'debit' | 'credit' }> {
+  addFunds(amount: number): number {
+    const current = this.getBalance();
+    const updated = current + amount;
+    this.setBalance(updated);
+    this.addTransaction('Funds Added to Account', amount, {
+      status: 'success',
+      mode: 'IN_APP_UPI',
+      utr: `${Date.now().toString().slice(-8)}${Math.floor(1000 + Math.random() * 9000)}`,
+    });
+    return updated;
+  },
+
+  getTransactions(): TransactionItem[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
       if (raw) return JSON.parse(raw);
@@ -187,23 +199,83 @@ export const storage = {
       // ignore
     }
     return [
-      { id: 'TXN1001', date: '21 Sep 2026', desc: 'Transfer to 9876543210', amount: 500, type: 'debit' },
-      { id: 'TXN1002', date: '19 Sep 2026', desc: 'UPI: priya@okaxis', amount: 1200, type: 'debit' },
-      { id: 'TXN1003', date: '15 Sep 2026', desc: 'Salary Credit', amount: 25000, type: 'credit' },
-      { id: 'TXN1004', date: '12 Sep 2026', desc: 'Bank Transfer SBIN000123', amount: 2000, type: 'debit' },
+      {
+        id: 'TXN1001',
+        date: '21 Sep 2026',
+        time: '14:32',
+        desc: 'Transfer to 9876543210',
+        amount: 500,
+        type: 'debit',
+        payeeVpa: '9876543210@upi',
+        utr: '220914321045',
+        status: 'success',
+        mode: 'IN_APP_UPI',
+      },
+      {
+        id: 'TXN1002',
+        date: '19 Sep 2026',
+        time: '18:15',
+        desc: 'UPI: priya@okaxis',
+        amount: 1200,
+        type: 'debit',
+        payeeVpa: 'priya@okaxis',
+        utr: '220918152391',
+        status: 'success',
+        mode: 'UPI_INTENT',
+      },
+      {
+        id: 'TXN1003',
+        date: '15 Sep 2026',
+        time: '09:00',
+        desc: 'Salary Credit',
+        amount: 25000,
+        type: 'credit',
+        utr: '220909001289',
+        status: 'success',
+        mode: 'IN_APP_UPI',
+      },
+      {
+        id: 'TXN1004',
+        date: '12 Sep 2026',
+        time: '11:45',
+        desc: 'Bank Transfer SBIN000123',
+        amount: 2000,
+        type: 'debit',
+        utr: '220911456721',
+        status: 'success',
+        mode: 'USSD_NUUP',
+      },
     ];
   },
 
-  addTransaction(desc: string, amount: number): void {
+  addTransaction(
+    desc: string,
+    amount: number,
+    details?: {
+      payeeVpa?: string;
+      utr?: string;
+      mode?: 'UPI_INTENT' | 'IN_APP_UPI' | 'USSD_NUUP';
+      status?: 'success' | 'failed' | 'pending';
+      type?: 'debit' | 'credit';
+    }
+  ): TransactionItem {
     const list = this.getTransactions();
-    list.unshift({
-      id: `TXN${Math.floor(1000 + Math.random() * 9000)}`,
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    const now = new Date();
+    const newTxn: TransactionItem = {
+      id: `UPI${Math.floor(100000 + Math.random() * 900000)}`,
+      date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       desc,
       amount,
-      type: 'debit',
-    });
-    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(list.slice(0, 10)));
+      type: details?.type || (desc.toLowerCase().includes('credit') ? 'credit' : 'debit'),
+      payeeVpa: details?.payeeVpa,
+      utr: details?.utr || `${Date.now().toString().slice(-8)}${Math.floor(1000 + Math.random() * 9000)}`,
+      status: details?.status || 'success',
+      mode: details?.mode || 'IN_APP_UPI',
+    };
+    list.unshift(newTxn);
+    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(list.slice(0, 30)));
+    return newTxn;
   },
 
   logout(): void {

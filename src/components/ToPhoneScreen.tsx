@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { LanguageCode } from '../types';
+import { LanguageCode, TransactionItem } from '../types';
 import { TRANSLATIONS } from '../i18n/translations';
 import { storage } from '../utils/storage';
-import { buildUssdToMobile, executeUssdCall, simulateUssdResponse } from '../utils/ussd';
-import { ArrowLeft, Users, Phone, IndianRupee, Send } from 'lucide-react';
+import { buildUssdToMobile } from '../utils/ussd';
+import { triggerKeypadHaptic } from '../utils/haptics';
+import { UnifiedPaymentModal } from './UnifiedPaymentModal';
+import { UpiPaymentReceiptModal } from './UpiPaymentReceiptModal';
+import { ArrowLeft, Users, Phone, IndianRupee, Send, ShieldCheck } from 'lucide-react';
 
 interface ToPhoneScreenProps {
   currentLang: LanguageCode;
@@ -26,7 +29,12 @@ export const ToPhoneScreen: React.FC<ToPhoneScreenProps> = ({
   const t = TRANSLATIONS[currentLang];
   const [phone, setPhone] = useState('');
   const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Modals
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [completedTxn, setCompletedTxn] = useState<TransactionItem | null>(null);
 
   useEffect(() => {
     // Check if a contact was selected from ContactsScreen
@@ -44,40 +52,41 @@ export const ToPhoneScreen: React.FC<ToPhoneScreenProps> = ({
   const handlePay = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    triggerKeypadHaptic();
 
     const trimmedPhone = phone.trim();
     const trimmedAmount = amount.trim();
 
     if (!trimmedPhone || !trimmedAmount) {
       if (!trimmedPhone) {
-        setError('Please enter a phone number.');
+        setError('Please enter a 10-digit mobile number.');
       } else {
-        setError('Please enter the amount');
+        setError('Please enter the payment amount.');
       }
       return;
     }
 
     if (trimmedPhone.length !== 10) {
-      setError('Phone number should be 10 digits.');
+      setError('Phone number must be exactly 10 digits.');
       return;
     }
 
     const amtVal = parseFloat(trimmedAmount);
     if (isNaN(amtVal) || amtVal <= 0) {
-      setError('Amount should be greater than 0');
+      setError('Amount must be greater than ₹0.');
       return;
     }
 
-    if (amtVal > 5000) {
-      setError('Amount should be less than 5000.');
+    if (amtVal > 100000) {
+      setError('NPCI per-transaction limit is ₹1,00,000.');
       return;
     }
 
-    const dialString = buildUssdToMobile(trimmedPhone, trimmedAmount);
-    executeUssdCall(dialString);
-    const resp = simulateUssdResponse(dialString, { phone: trimmedPhone, amount: amtVal });
-    onOpenUssdModal(resp.dialCode, resp.title, resp.body, resp.options);
+    // Open Unified Payment Modal
+    setShowPaymentModal(true);
   };
+
+  const ussdDial = phone.trim() && amount.trim() ? buildUssdToMobile(phone.trim(), amount.trim()) : undefined;
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between p-6 max-w-md mx-auto select-none">
@@ -85,8 +94,11 @@ export const ToPhoneScreen: React.FC<ToPhoneScreenProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-6 border-b border-slate-100">
           <button
-            onClick={onBack}
-            className="flex items-center gap-1.5 text-slate-600 hover:text-black py-2 px-1 text-sm font-medium transition-colors"
+            onClick={() => {
+              triggerKeypadHaptic();
+              onBack();
+            }}
+            className="flex items-center gap-1.5 text-slate-600 hover:text-black py-2 px-1 text-sm font-medium transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{t.back}</span>
@@ -96,81 +108,166 @@ export const ToPhoneScreen: React.FC<ToPhoneScreenProps> = ({
         </div>
 
         {/* Contact Picker Button */}
-        <div className="mt-6 mb-6">
+        <div className="mt-5 mb-4">
           <button
             type="button"
-            onClick={onOpenContacts}
-            className="w-full py-3 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-between text-xs font-semibold text-slate-800 transition-colors shadow-xs cursor-pointer"
+            onClick={() => {
+              triggerKeypadHaptic();
+              onOpenContacts();
+            }}
+            className="w-full py-3 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 transition-colors shadow-2xs cursor-pointer active:scale-98"
           >
             <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-sky-600" />
+              <Users className="w-4 h-4 text-emerald-600" />
               <span>{t.select_from_contacts}</span>
             </div>
-            <span className="text-[11px] text-sky-600 font-bold">Browse →</span>
+            <span className="text-[11px] text-emerald-700 font-bold">Browse &rarr;</span>
           </button>
         </div>
 
+        {/* Hero Title */}
+        <div className="text-center mt-3 mb-6">
+          <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-2 border border-emerald-100">
+            <Phone className="w-6 h-6" />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-950">
+            Pay by Mobile Number
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Instant transfer via UPI VPA or Offline NUUP
+          </p>
+        </div>
+
         {error && (
-          <div className="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
             <span className="font-semibold">Notice:</span> {error}
           </div>
         )}
 
         {/* Payment Form */}
         <form onSubmit={handlePay} className="space-y-4">
-          {/* Phone Number */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              {t.phone_number} <span className="text-red-500">*</span>
+          {/* Phone Input */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700 block">
+              Recipient Phone Number
             </label>
             <div className="relative">
+              <div className="absolute left-3.5 top-3 flex items-center gap-1 text-slate-400">
+                <span className="text-xs font-bold text-slate-600">+91</span>
+                <span className="text-slate-300">|</span>
+              </div>
               <input
+                id="phone-input"
                 type="tel"
-                maxLength={10}
                 value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder={t.enter_phone_number}
-                className="w-full px-4 py-3 pl-11 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black font-mono transition-all"
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/[^0-9]/g, '');
+                  if (cleaned.length <= 10) setPhone(cleaned);
+                }}
+                placeholder="10-digit mobile number"
+                className="w-full pl-16 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:border-black focus:bg-white transition-all shadow-2xs"
+                maxLength={10}
               />
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             </div>
           </div>
 
-          {/* Amount */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              {t.enter_amount} (Max ₹5,000) <span className="text-red-500">*</span>
+          {/* Amount Input */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700 block">
+              {t.enter_amount} (₹)
             </label>
             <div className="relative">
+              <IndianRupee className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
+                id="amount-input"
                 type="number"
-                min="1"
-                max="5000"
-                step="any"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="₹ 0.00"
-                className="w-full px-4 py-3 pl-11 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black font-mono font-bold transition-all"
+                placeholder="0.00"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg font-bold text-slate-900 focus:outline-none focus:border-black focus:bg-white transition-all shadow-2xs"
+                min="1"
+                step="any"
               />
-              <IndianRupee className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+            </div>
+
+            {/* Quick Amount Chips */}
+            <div className="flex gap-2 pt-1">
+              {[100, 200, 500, 1000, 2000].map((chip) => (
+                <button
+                  key={chip}
+                  type="button"
+                  onClick={() => {
+                    triggerKeypadHaptic();
+                    setAmount(chip.toString());
+                  }}
+                  className="py-1 px-2.5 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-lg text-[11px] font-semibold transition-all cursor-pointer"
+                >
+                  +{chip}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="pt-6 flex justify-center">
+          {/* Optional Note */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700 block">
+              Note (Optional)
+            </label>
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="e.g. Lunch, Grocery, Rent"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-black focus:bg-white transition-all"
+              maxLength={40}
+            />
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-2">
             <button
+              id="to-phone-pay-btn"
               type="submit"
-              className="w-48 py-3.5 bg-black hover:bg-slate-900 text-white font-bold text-base rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 bg-slate-950 hover:bg-black active:scale-98 text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Send className="w-4 h-4 text-emerald-400" />
-              <span>{t.pay}</span>
+              <Send className="w-4 h-4" />
+              <span>Proceed to Pay</span>
             </button>
           </div>
         </form>
       </div>
 
-      <div className="text-center py-4 text-xs text-slate-500">
-        Dial string generated: <code className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded">*99*1*1*phone*amount*1#</code>
+      {/* Security badge footer */}
+      <div className="py-4 text-center border-t border-slate-100 flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <span>Secured by NPCI Unified Payments Protocol</span>
       </div>
+
+      {/* Unified Payment Chooser Modal */}
+      <UnifiedPaymentModal
+        isOpen={showPaymentModal}
+        payeeName={phone ? `Recipient (+91 ${phone})` : 'Recipient'}
+        payeeVpa={`${phone}@upi`}
+        amount={parseFloat(amount) || 0}
+        note={note || 'Mobile Transfer'}
+        onClose={() => setShowPaymentModal(false)}
+        onPaymentSuccess={(txn) => {
+          setShowPaymentModal(false);
+          setCompletedTxn(txn);
+        }}
+        onOpenUssdModal={onOpenUssdModal}
+        ussdDialString={ussdDial}
+      />
+
+      {/* Payment Receipt Modal */}
+      <UpiPaymentReceiptModal
+        isOpen={Boolean(completedTxn)}
+        transaction={completedTxn}
+        onClose={() => {
+          setCompletedTxn(null);
+          onBack();
+        }}
+      />
     </div>
   );
 };

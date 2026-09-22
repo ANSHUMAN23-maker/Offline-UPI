@@ -22,6 +22,27 @@ export interface SecurityQuestionsData {
   [question: string]: string;
 }
 
+export interface TransactionItem {
+  id: string;
+  date: string;
+  time?: string;
+  desc: string;
+  amount: number;
+  type: 'debit' | 'credit';
+  utr?: string;
+  payeeVpa?: string;
+  status?: 'success' | 'failed' | 'pending';
+  mode?: 'UPI_INTENT' | 'IN_APP_UPI' | 'USSD_NUUP';
+}
+
+export interface PaymentExecutionData {
+  payeeName: string;
+  payeeVpa: string;
+  amount: number;
+  note?: string;
+  referenceId?: string;
+}
+
 export type ScreenType =
   | 'get_started'
   | 'register'
@@ -37,7 +58,9 @@ export type ScreenType =
   | 'contacts'
   | 'menu'
   | 'qr_generate'
-  | 'scan_qr';
+  | 'scan_qr'
+  | 'upi_guide'
+  | 'transaction_history';
 
 export interface USSDSessionState {
   isOpen: boolean;
