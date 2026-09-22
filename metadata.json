@@ -1,0 +1,10 @@
+{
+  "name": "Offline UPI",
+  "description": "Offline UPI payment and banking app using NPCI *99# USSD codes, contact transfers, QR code generation & scanning, bank account transfers, and multi-language support",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

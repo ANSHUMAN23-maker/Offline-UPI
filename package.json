@@ -1,0 +1,32 @@
+{
+  "name": "offline-upi",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "lint": "tsc --noEmit",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "jsqr": "^1.4.0",
+    "lucide-react": "^1.16.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/node": "^22.13.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}

@@ -1,87 +1,62 @@
-# Offline UPI
+# Offline UPI (React Web Application)
 
-An Android application that enables users to perform UPI (Unified Payments Interface) transactions without requiring an active internet connection. Ideal for areas with limited or no network coverage, this app leverages USSD-based UPI services to facilitate seamless offline payments.
-
-[![Latest release](https://img.shields.io/badge/Releases-v0.9-blue)](https://github.com/sahil-ingle/Offline-UPI/releases)
-
+A modern, responsive React and TypeScript web rewrite of the Offline UPI application originally created for Android. This application allows users to perform offline UPI transactions, initiate bank and contact transfers, generate and scan UPI QR codes, and simulate NPCI (*99#) USSD operations without requiring an active data connection.
 
 ---
 
-## Features
+## Features Ported from Original Android Project
 
-* **Offline UPI Transactions**: Initiate and complete UPI payments without internet connectivity.
-* **USSD Integration**: Utilizes the UPI 123Pay service (\*99#) for transaction processing.
-* **User-Friendly Interface**: Simple and intuitive design for easy navigation.
-* **Secure Transactions**: Ensures safe and encrypted payment processes.
+* **Get Started & Language Selection**: Multi-language support (English, Hindi, Tamil, Malayalam, Kannada, Telugu).
+* **User Registration & Profile**: Store User Name, Phone Number, and UPI ID with client-side encrypted storage.
+* **Offline NUUP Setup & Activation**: Interactive guide and simulator for NPCI \*99# bank account linking.
+* **PIN Setup & Authentication**: Encrypted 4-digit security PIN setup, confirmation, and authentication screen.
+* **Security Questions PIN Reset**: 3 configurable security questions to recover and reset forgotten PINs.
+* **Main Dashboard**:
+  * Send money to Phone Number / Contacts
+  * Send money to UPI ID / VPA
+  * Send money to Bank Account (IFSC + Account Number)
+  * QR Code Scan & Pay (with camera scanner and file upload QR decoder)
+  * Check Bank Balance (initiates \*99\*3# USSD string)
+  * Transaction History (initiates \*99\*6\*1# USSD string)
+  * Quick Dial \*99# launcher
+* **Contact Book**: Searchable contact list with quick payment initiation.
+* **QR Code Generator**: Generates verifiable UPI payment QR codes (`upi://pay?pa=...`) with custom amount and note.
+* **QR Code Scanner**: Live video camera scanner powered by `jsqr` with fallback image drag-and-drop decoder.
+* **USSD Dialog Simulation**: Global USSD dialog mimicking GSM cellular session prompt screens with interactive menu response handling.
 
 ---
 
-## Prerequisites
+## Tech Stack
 
-* **Android Device**: Requires a device running Android 5.0 (Lollipop) or higher.
-* **SIM Card**: Must be a GSM-supported SIM card for USSD functionality.
-* **Bank Compatibility**: Ensure your bank supports UPI 123Pay services.
+* **Framework**: React 18 with TypeScript & Vite
+* **Styling**: Tailwind CSS
+* **Icons**: `lucide-react`
+* **QR Generation**: `qrcode`
+* **QR Code Scanning**: `jsqr` with HTML5 `<video>` / `<canvas>`
+* **State & Persistence**: Typed localStorage wrapper with encryption helper
 
 ---
 
-## Installation
+## Getting Started
 
-1. **Clone the Repository**:
-
+1. **Install Dependencies**:
    ```bash
-   git clone https://github.com/sahil-ingle/Offline-UPI.git
-   cd Offline-UPI
+   npm install
    ```
 
-2. **Open in Android Studio**:
+2. **Start Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:3000` to view the app.
 
-   Launch Android Studio and open the cloned project directory.
-
-3. **Build the APK**:
-
-   In Android Studio, click on `Build > Build APK(s)` to generate the APK file.
-
-4. **Install the APK**:
-
-   Transfer the APK to your Android device and install it.
-
----
-
-## Usage
-
-1. **Launch the App**:
-
-   Open the app on your Android device.
-
-2. **Initiate a Transaction**:
-
-   Enter the recipient's UPI ID, amount, and any additional details.
-
-3. **Confirm Payment**:
-
-   The app will process the transaction using the UPI 123Pay service via USSD.
-
-4. **Receive Confirmation**:
-
-   Upon successful payment, a confirmation message will be displayed.
-
----
-
-## Limitations
-
-* **SIM Compatibility**: Only works with SIM cards that support GSM and USSD services.
-* **Bank Support**: Availability of UPI 123Pay services may vary by bank.
-* **Network Availability**: While the app operates offline, initial setup and certain features may require an internet connection.
+3. **Build for Production**:
+   ```bash
+   npm run build
+   ```
 
 ---
 
 ## License
 
-This project is licensed under the Apache 2.0 LICENSE- see the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-* [NPCI](https://www.npci.org.in/) for the UPI 123Pay service.
-* [Android Developers](https://developer.android.com/) for providing the tools and documentation to build Android applications.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
