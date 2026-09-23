@@ -86,7 +86,9 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Landmark className="w-5 h-5 text-emerald-400" />
-              <span className="text-xs font-semibold text-slate-300">Primary Bank Account</span>
+              <span className="text-xs font-semibold text-slate-300">
+                {storage.getUserData().myBank || 'Primary Bank Account'}
+              </span>
             </div>
             <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
               UPI Active
@@ -189,9 +191,27 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
         {/* Transactions List */}
         <div className="mt-4 space-y-2">
           {filteredList.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 space-y-1">
-              <Receipt className="w-8 h-8 mx-auto text-slate-300" />
-              <p className="text-xs font-medium">No transactions found</p>
+            <div className="py-12 px-4 text-center text-slate-400 space-y-3 bg-white rounded-2xl border border-slate-200/80">
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                <Receipt className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800">No transactions recorded yet</p>
+                <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto">
+                  Payments made via UPI Intent, In-App PIN, or *99# USSD will be logged here with official NPCI UTR reference numbers.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  triggerKeypadHaptic();
+                  setShowAddFunds(true);
+                }}
+                className="py-2 px-3 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>+ Add Opening Funds</span>
+              </button>
             </div>
           ) : (
             filteredList.map((item) => (

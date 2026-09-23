@@ -82,12 +82,18 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
               </h3>
               <p className="text-xs text-slate-600 font-mono flex items-center gap-1 mt-0.5">
                 <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-                <span>+91 {userData.myPhone || '9999999999'}</span>
+                <span>{userData.myPhone ? `+91 ${userData.myPhone}` : 'Mobile not linked'}</span>
               </p>
               <p className="text-xs text-slate-600 font-mono flex items-center gap-1 mt-0.5 truncate">
                 <AtSign className="w-3 h-3 text-slate-400 shrink-0" />
-                <span>{userData.myUPIid || 'Enter UPI Id'}</span>
+                <span>{userData.myUPIid || 'No UPI ID configured'}</span>
               </p>
+              {userData.myBank && (
+                <p className="text-xs text-slate-600 flex items-center gap-1 mt-0.5 truncate">
+                  <Landmark className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>{userData.myBank}</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -326,7 +332,7 @@ export const MenuScreen: React.FC<MenuScreenProps> = ({
       </div>
 
       <div className="text-center py-2 text-[11px] text-slate-600 font-mono">
-        Offline UPI v1.0.0 (NPCI NUUP)
+        OFFPAY v1.0.0 (NPCI NUUP)
       </div>
 
       {/* Logout Confirmation Dialog */}

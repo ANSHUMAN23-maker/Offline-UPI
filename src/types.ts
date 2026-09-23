@@ -10,6 +10,8 @@ export interface UserData {
   myName: string;
   myPhone: string;
   myUPIid: string;
+  myBank?: string;
+  myAccountNumber?: string;
 }
 
 export interface ContactItem {
@@ -59,7 +61,6 @@ export type ScreenType =
   | 'menu'
   | 'qr_generate'
   | 'scan_qr'
-  | 'upi_guide'
   | 'transaction_history';
 
 export interface USSDSessionState {
@@ -68,6 +69,5 @@ export interface USSDSessionState {
   title: string;
   response: string;
   options?: { key: string; label: string }[];
-  status?: 'dialing' | 'connected' | 'completed' | 'error';
-  onAction?: (actionKey: string) => void;
+  status?: 'active' | 'completed' | 'error';
 }

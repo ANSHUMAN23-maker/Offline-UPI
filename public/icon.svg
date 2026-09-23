@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="128" fill="#0f172a"/>
+  <!-- Decorative background circle -->
+  <circle cx="256" cy="256" r="180" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-width="6" stroke-dasharray="16 12"/>
+  <!-- Phone & UPI Symbol -->
+  <rect x="160" y="96" width="192" height="320" rx="36" fill="#020617" stroke="#10b981" stroke-width="12"/>
+  <!-- Phone screen inner -->
+  <rect x="178" y="140" width="156" height="220" rx="18" fill="#0f172a"/>
+  <!-- Rupee / Fast Pay Lightning Symbol -->
+  <path d="M220 200 H292 M220 226 H276 M220 200 C256 200 276 216 276 240 C276 264 250 274 220 274 L288 340" stroke="#34d399" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Phone speaker bar -->
+  <rect x="226" y="118" width="60" height="8" rx="4" fill="#334155"/>
+  <!-- Phone bottom bar -->
+  <circle cx="256" cy="386" r="12" fill="#10b981"/>
+  <!-- Offline Wave Signal Indicator -->
+  <path d="M376 170 C410 200 410 312 376 342" stroke="#10b981" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <path d="M136 170 C102 200 102 312 136 342" stroke="#10b981" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <path d="M404 136 C454 180 454 332 404 376" stroke="#34d399" stroke-width="10" stroke-linecap="round" stroke-dasharray="10 10" fill="none"/>
+</svg>

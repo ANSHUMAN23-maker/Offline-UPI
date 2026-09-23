@@ -6,6 +6,7 @@ import { formatINR } from '../utils/upi';
 import { executeUssdCall, simulateUssdResponse } from '../utils/ussd';
 import { triggerKeypadHaptic } from '../utils/haptics';
 import { UpiGuideModal } from './UpiGuideModal';
+import { PWAInstallButton } from './PWAInstallButton';
 import {
   User,
   Search,
@@ -37,6 +38,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({
   const t = TRANSLATIONS[currentLang];
   const [showGuideModal, setShowGuideModal] = useState(false);
   const balance = storage.getBalance();
+  const userData = storage.getUserData();
 
   const handleRecentTransactions = () => {
     triggerKeypadHaptic();
@@ -74,14 +76,25 @@ export const MainScreen: React.FC<MainScreenProps> = ({
             onNavigate('menu');
           }}
           className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 shadow-2xs flex items-center justify-center transition-transform active:scale-95 cursor-pointer shrink-0"
-          title="Account Menu"
+          title={userData.myName ? `${userData.myName}'s Account` : 'Account Menu'}
         >
-          <User className="w-5 h-5 text-slate-800" />
+          {userData.myName ? (
+            <span className="text-xs font-bold text-slate-800">
+              {userData.myName.charAt(0).toUpperCase()}
+            </span>
+          ) : (
+            <User className="w-5 h-5 text-slate-800" />
+          )}
         </button>
       </div>
 
-      {/* Production Guide Announcement Ribbon */}
+      {/* In-App PWA Install Button */}
       <div className="mt-3 px-4">
+        <PWAInstallButton />
+      </div>
+
+      {/* Production Guide Announcement Ribbon */}
+      <div className="mt-2 px-4">
         <button
           type="button"
           onClick={() => {
@@ -117,7 +130,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({
             </div>
             <div>
               <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block">
-                State Bank of India (Primary)
+                {userData.myBank || 'Primary Bank Account'} {userData.myAccountNumber ? `(${userData.myAccountNumber})` : ''}
               </span>
               <span className="text-base font-extrabold text-slate-950 font-mono">
                 {formatINR(balance)}

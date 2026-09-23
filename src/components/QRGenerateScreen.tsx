@@ -18,8 +18,8 @@ export const QRGenerateScreen: React.FC<QRGenerateScreenProps> = ({
 }) => {
   const t = TRANSLATIONS[currentLang];
   const userData = storage.getUserData();
-  const name = userData.myName || 'User';
-  const upiId = userData.myUPIid || 'offline@upi';
+  const name = userData.myName || 'UPI Account Holder';
+  const upiId = userData.myUPIid || (userData.myPhone ? `${userData.myPhone}@upi` : 'user@upi');
 
   const [requestedAmount, setRequestedAmount] = useState<string>('');
   const [remarks, setRemarks] = useState<string>('');

@@ -21,6 +21,7 @@ import { QRGenerateScreen } from './components/QRGenerateScreen';
 import { ScanQRScreen } from './components/ScanQRScreen';
 import { TransactionHistoryScreen } from './components/TransactionHistoryScreen';
 import { UssdModal } from './components/UssdModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 
 export const App: React.FC = () => {
   // Determine initial screen based on registration & login state
@@ -284,6 +285,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 flex justify-center items-start sm:p-4 select-none">
+      <OfflineIndicator />
       {/* Mobile Shell Frame */}
       <div className="w-full max-w-md bg-white min-h-screen sm:min-h-[844px] sm:my-auto sm:rounded-[40px] shadow-2xl overflow-hidden relative border border-slate-800">
         {/* Mobile Status Bar Simulation */}

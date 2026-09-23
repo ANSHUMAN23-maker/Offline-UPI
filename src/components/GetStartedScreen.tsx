@@ -22,25 +22,12 @@ export const GetStartedScreen: React.FC<GetStartedScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between items-center p-6 select-none max-w-md mx-auto">
-      {/* Top Section with Logo */}
-      <div className="w-full flex-1 flex flex-col items-center justify-center pt-8">
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center">
-          <img
-            src="/ic_logo_dark.png"
-            alt="Offline UPI Logo"
-            className="w-full h-full object-contain drop-shadow-md"
-            onError={(e) => {
-              // fallback if needed
-              (e.currentTarget as HTMLImageElement).src = '/ic_logo.png';
-            }}
-          />
-        </div>
-
-        <div className="mt-4 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-white">{t.app_name}</h1>
-          <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">
-            {t.offline_mode_badge}
-          </p>
+      {/* Top Section with App Name (no icon in replacement) */}
+      <div className="w-full flex-1 flex flex-col items-center justify-center pt-12 pb-6">
+        <div className="text-center">
+          <h1 className="text-5xl font-black tracking-wider text-white font-mono uppercase">
+            OFFPAY
+          </h1>
         </div>
       </div>
 

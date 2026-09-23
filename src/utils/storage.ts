@@ -13,7 +13,7 @@ const STORAGE_KEYS = {
   BIOMETRIC_ENABLED: 'offline_upi_biometric_enabled',
 };
 
-// Simple reversible cipher replicating AES/CBC string encryption for client persistence
+// Reversible cipher replicating AES/CBC string encryption for client keystore persistence
 export function encryptPin(pin: string): string {
   try {
     const salt = 'OfflineUPI_Keystore_Salt_';
@@ -40,16 +40,6 @@ export function decryptPin(cipher: string): string {
   }
 }
 
-export const DEFAULT_CONTACTS: ContactItem[] = [
-  { id: '1', name: 'Aarav Sharma', number: '9876543210' },
-  { id: '2', name: 'Priya Patel', number: '9823456789' },
-  { id: '3', name: 'Rohan Verma', number: '9912345678' },
-  { id: '4', name: 'Sneha Rao', number: '9765432109' },
-  { id: '5', name: 'Ananya Deshmukh', number: '9890123456' },
-  { id: '6', name: 'Vikram Singh', number: '9811223344' },
-  { id: '7', name: 'Sahil Ingle', number: '9999999999' },
-];
-
 export const storage = {
   getLanguage(): LanguageCode {
     return (localStorage.getItem(STORAGE_KEYS.LANG) as LanguageCode) || 'en';
@@ -61,7 +51,7 @@ export const storage = {
 
   isRegistered(): boolean {
     const data = storage.getUserData();
-    return Boolean(data.myPhone && data.myName);
+    return Boolean(data.myPhone && data.myName && data.myPhone.trim().length === 10);
   },
 
   isLoggedIn(): boolean {
@@ -76,20 +66,35 @@ export const storage = {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.USER_DATA);
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            myName: parsed.myName || '',
+            myPhone: parsed.myPhone || '',
+            myUPIid: parsed.myUPIid || '',
+            myBank: parsed.myBank || '',
+            myAccountNumber: parsed.myAccountNumber || '',
+          };
+        }
       }
     } catch {
       // ignore
     }
     return {
-      myName: 'Sahil Ingle',
-      myPhone: '9999999999',
-      myUPIid: 'sahil@upi',
+      myName: '',
+      myPhone: '',
+      myUPIid: '',
+      myBank: '',
+      myAccountNumber: '',
     };
   },
 
   setUserData(data: UserData): void {
     localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data));
+  },
+
+  hasPin(): boolean {
+    return Boolean(this.getStoredPin());
   },
 
   getStoredPin(): string | null {
@@ -99,21 +104,7 @@ export const storage = {
   },
 
   setPin(pin: string): void {
-    const cipher = encryptPin(pin);
-    localStorage.setItem(STORAGE_KEYS.PIN, cipher);
-  },
-
-  hasPin(): boolean {
-    return !!localStorage.getItem(STORAGE_KEYS.PIN);
-  },
-
-  isBiometricEnabled(): boolean {
-    const val = localStorage.getItem(STORAGE_KEYS.BIOMETRIC_ENABLED);
-    return val === null ? true : val === 'true';
-  },
-
-  setBiometricEnabled(enabled: boolean): void {
-    localStorage.setItem(STORAGE_KEYS.BIOMETRIC_ENABLED, enabled ? 'true' : 'false');
+    localStorage.setItem(STORAGE_KEYS.PIN, encryptPin(pin));
   },
 
   getSecurityQuestions(): SecurityQuestionsData | null {
@@ -132,8 +123,8 @@ export const storage = {
     localStorage.setItem(STORAGE_KEYS.SECURITY_QUESTIONS, JSON.stringify(data));
   },
 
-  getSelectedContact(): string {
-    return localStorage.getItem(STORAGE_KEYS.SELECTED_CONTACT) || '';
+  getSelectedContact(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.SELECTED_CONTACT);
   },
 
   setSelectedContact(number: string): void {
@@ -148,24 +139,64 @@ export const storage = {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.CONTACTS_LIST);
       if (raw) {
-        return JSON.parse(raw);
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) return list;
       }
     } catch {
       // ignore
     }
-    return DEFAULT_CONTACTS;
+    return [];
   },
 
   addContact(contact: ContactItem): void {
     const list = this.getContacts();
-    list.unshift(contact);
+    // Prevent duplicate phone numbers
+    const cleanNum = contact.number.replace(/\D/g, '').slice(-10);
+    const existingIndex = list.findIndex(
+      (c) => c.number.replace(/\D/g, '').slice(-10) === cleanNum
+    );
+    if (existingIndex >= 0) {
+      list[existingIndex] = contact;
+    } else {
+      list.unshift(contact);
+    }
     localStorage.setItem(STORAGE_KEYS.CONTACTS_LIST, JSON.stringify(list));
+  },
+
+  deleteContact(id: string): void {
+    const list = this.getContacts().filter((c) => c.id !== id);
+    localStorage.setItem(STORAGE_KEYS.CONTACTS_LIST, JSON.stringify(list));
+  },
+
+  importContacts(contacts: { name: string; number: string }[]): number {
+    const current = this.getContacts();
+    let addedCount = 0;
+    for (const c of contacts) {
+      const cleanNum = c.number.replace(/\D/g, '').slice(-10);
+      if (cleanNum.length === 10) {
+        const exists = current.some(
+          (item) => item.number.replace(/\D/g, '').slice(-10) === cleanNum
+        );
+        if (!exists) {
+          current.push({
+            id: `c_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            name: c.name.trim() || `+91 ${cleanNum}`,
+            number: cleanNum,
+          });
+          addedCount++;
+        }
+      }
+    }
+    localStorage.setItem(STORAGE_KEYS.CONTACTS_LIST, JSON.stringify(current));
+    return addedCount;
   },
 
   getBalance(): number {
     const bal = localStorage.getItem(STORAGE_KEYS.BALANCE);
-    if (bal) return parseFloat(bal);
-    return 14850.50;
+    if (bal !== null && !isNaN(parseFloat(bal))) {
+      return parseFloat(bal);
+    }
+    return 0;
   },
 
   setBalance(amount: number): void {
@@ -186,6 +217,7 @@ export const storage = {
     this.addTransaction('Funds Added to Account', amount, {
       status: 'success',
       mode: 'IN_APP_UPI',
+      type: 'credit',
       utr: `${Date.now().toString().slice(-8)}${Math.floor(1000 + Math.random() * 9000)}`,
     });
     return updated;
@@ -194,95 +226,66 @@ export const storage = {
   getTransactions(): TransactionItem[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) return list;
+      }
     } catch {
       // ignore
     }
-    return [
-      {
-        id: 'TXN1001',
-        date: '21 Sep 2026',
-        time: '14:32',
-        desc: 'Transfer to 9876543210',
-        amount: 500,
-        type: 'debit',
-        payeeVpa: '9876543210@upi',
-        utr: '220914321045',
-        status: 'success',
-        mode: 'IN_APP_UPI',
-      },
-      {
-        id: 'TXN1002',
-        date: '19 Sep 2026',
-        time: '18:15',
-        desc: 'UPI: priya@okaxis',
-        amount: 1200,
-        type: 'debit',
-        payeeVpa: 'priya@okaxis',
-        utr: '220918152391',
-        status: 'success',
-        mode: 'UPI_INTENT',
-      },
-      {
-        id: 'TXN1003',
-        date: '15 Sep 2026',
-        time: '09:00',
-        desc: 'Salary Credit',
-        amount: 25000,
-        type: 'credit',
-        utr: '220909001289',
-        status: 'success',
-        mode: 'IN_APP_UPI',
-      },
-      {
-        id: 'TXN1004',
-        date: '12 Sep 2026',
-        time: '11:45',
-        desc: 'Bank Transfer SBIN000123',
-        amount: 2000,
-        type: 'debit',
-        utr: '220911456721',
-        status: 'success',
-        mode: 'USSD_NUUP',
-      },
-    ];
+    return [];
   },
 
   addTransaction(
     desc: string,
     amount: number,
-    details?: {
-      payeeVpa?: string;
-      utr?: string;
-      mode?: 'UPI_INTENT' | 'IN_APP_UPI' | 'USSD_NUUP';
-      status?: 'success' | 'failed' | 'pending';
-      type?: 'debit' | 'credit';
-    }
+    extra?: Partial<TransactionItem>
   ): TransactionItem {
     const list = this.getTransactions();
     const now = new Date();
-    const newTxn: TransactionItem = {
-      id: `UPI${Math.floor(100000 + Math.random() * 900000)}`,
-      date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    const dateStr = now.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+    const timeStr = now.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+
+    const item: TransactionItem = {
+      id: `TXN${Date.now().toString().slice(-7)}`,
+      date: dateStr,
+      time: timeStr,
       desc,
       amount,
-      type: details?.type || (desc.toLowerCase().includes('credit') ? 'credit' : 'debit'),
-      payeeVpa: details?.payeeVpa,
-      utr: details?.utr || `${Date.now().toString().slice(-8)}${Math.floor(1000 + Math.random() * 9000)}`,
-      status: details?.status || 'success',
-      mode: details?.mode || 'IN_APP_UPI',
+      type: extra?.type || 'debit',
+      utr: extra?.utr || `${now.getFullYear().toString().slice(-2)}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${Math.floor(100000 + Math.random() * 900000)}`,
+      payeeVpa: extra?.payeeVpa,
+      status: extra?.status || 'success',
+      mode: extra?.mode || 'IN_APP_UPI',
     };
-    list.unshift(newTxn);
-    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(list.slice(0, 30)));
-    return newTxn;
+
+    list.unshift(item);
+    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(list));
+    return item;
+  },
+
+  isBiometricEnabled(): boolean {
+    const val = localStorage.getItem(STORAGE_KEYS.BIOMETRIC_ENABLED);
+    return val === 'true';
+  },
+
+  setBiometricEnabled(enabled: boolean): void {
+    localStorage.setItem(STORAGE_KEYS.BIOMETRIC_ENABLED, enabled ? 'true' : 'false');
   },
 
   logout(): void {
-    localStorage.removeItem(STORAGE_KEYS.LOGIN);
-    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-    localStorage.removeItem(STORAGE_KEYS.PIN);
-    localStorage.removeItem(STORAGE_KEYS.SECURITY_QUESTIONS);
-    localStorage.removeItem(STORAGE_KEYS.SELECTED_CONTACT);
+    this.setLoggedIn(false);
+  },
+
+  clearAllData(): void {
+    localStorage.clear();
   },
 };

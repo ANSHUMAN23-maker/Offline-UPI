@@ -81,7 +81,7 @@ export interface TranslationDict {
 
 export const TRANSLATIONS: Record<LanguageCode, TranslationDict> = {
   en: {
-    app_name: 'Offline UPI',
+    app_name: 'OFFPAY',
     continue_next: 'Continue',
     to_mobile_or_contact: 'To Mobile or Contact',
     upi_transfer: 'UPI Transfer',
@@ -142,7 +142,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDict> = {
     use_pin_instead: 'Use PIN Instead',
   },
   hi: {
-    app_name: 'Offline UPI',
+    app_name: 'OFFPAY',
     continue_next: 'जारी रखें',
     to_mobile_or_contact: 'मोबाइल या संपर्क को',
     upi_transfer: 'यूपीआई ट्रांसफर',
@@ -203,7 +203,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDict> = {
     use_pin_instead: 'इसके बजाय पिन का उपयोग करें',
   },
   ta: {
-    app_name: 'Offline UPI',
+    app_name: 'OFFPAY',
     continue_next: 'தொடர்க',
     to_mobile_or_contact: 'மொபைல் அல்லது தொடர்பு',
     upi_transfer: 'யூபிஐ பரிமாற்றம்',
@@ -264,7 +264,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDict> = {
     use_pin_instead: 'பின்னைப் பயன்படுத்தவும்',
   },
   te: {
-    app_name: 'Offline UPI',
+    app_name: 'OFFPAY',
     continue_next: 'కొనసాగండి',
     to_mobile_or_contact: 'మొబైల్ లేదా సంప్రదించండి',
     upi_transfer: 'UPI బదిలీ',
@@ -325,7 +325,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDict> = {
     use_pin_instead: 'పిన్ ఉపయోగించండి',
   },
   kn: {
-    app_name: 'Offline UPI',
+    app_name: 'OFFPAY',
     continue_next: 'ಮುಂದುವರಿಸಿ',
     to_mobile_or_contact: 'ಮೊಬೈಲ್ ಅಥವಾ ಸಂಪರ್ಕಿಸಿ',
     upi_transfer: 'ಯುಪಿಐ ವರ್ಗಾವಣೆ',
@@ -386,7 +386,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDict> = {
     use_pin_instead: 'ಪಿನ್ ಬಳಸಿ',
   },
   ml: {
-    app_name: 'Offline UPI',
+    app_name: 'OFFPAY',
     continue_next: 'തുടരുക',
     to_mobile_or_contact: 'മൊബൈൽ അല്ലെങ്കിൽ കോൺടാക്റ്റിലേക്ക്',
     upi_transfer: 'UPI കൈമാറ്റം',
